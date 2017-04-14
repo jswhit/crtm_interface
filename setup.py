@@ -16,6 +16,8 @@ strg = 'cd src; sh make.sh'
 sys.stdout.write('executing "%s"\n' % strg)
 subprocess.call(strg,env=os.environ,shell=True)
 
+os.remove('crtm_interface.c') # trigger a rebuild
+
 # build c extension that calls fortran.
 libs = ['pycrtm_interface','imf','ifcore','crtm']
 
