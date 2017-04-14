@@ -1,5 +1,6 @@
 Experimental python interface to CRTM
 * build CRTM source in CRTM_REL-2.2.3 (compile with -fPIC!)
+* set env vars CRTM_LIBDIR (location of libcrtm.a) and CRTM_INCDIR (location of CRTM *.mod files).
 * run 'python setup.py build_ext --inplace'
 * run test.py
 
