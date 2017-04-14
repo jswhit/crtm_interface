@@ -1,0 +1,4 @@
+Experimental python interface to CRTM
+* build CRTM source in CRTM_REL-2.2.3 (compile with -fPIC!)
+* run 'python setup.py build_ext --inplace'
+* run test.py
