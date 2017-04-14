@@ -6,10 +6,10 @@ import os, sys, subprocess
 # get paths to CRTM stuff.
 CRTM_incdir = os.environ.get('CRTM_INCDIR')
 if CRTM_incdir is None:
-    raise ValueError('CRTM_INCDIR env var not specified')
+    CRTM_incdir='CRTM_REL-2.2.3/libsrc'
 CRTM_libdir = os.environ.get('CRTM_LIBDIR')
 if CRTM_libdir is None:
-        raise ValueError('CRTM_LIBDIR env var not specified')
+    CRTM_libdir='CRTM_REL-2.2.3/libsrc'
 
 # build iso_c_binding fortran wrapper using shell script.
 strg = 'cd src; sh make.sh'

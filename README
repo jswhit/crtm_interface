@@ -1,8 +1,9 @@
 Experimental python interface to CRTM
 * build CRTM source in CRTM_REL-2.2.3 (compile with -fPIC!)
-* set env vars CRTM_LIBDIR (location of libcrtm.a) and CRTM_INCDIR (location of CRTM *.mod files).
+* optionally set env vars CRTM_LIBDIR (location of libcrtm.a) and CRTM_INCDIR (location of CRTM *.mod files). 
+  If not set, CRTM_REL-2.2.3/libsrc will be used for both.
 * run 'python setup.py build_ext --inplace'
-* run test.py
+* run test.py (you will have to edit and change crtm_coeffs_path).
 
 
 Fortran wrapper to CRTM that uses iso_c_binding is in src/pycrtm_interface.f90.
