@@ -14,8 +14,11 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
 !     mype         - current processor        
 !     nchanl       - number of channels    
 !     isis         - instrument/sensor character string 
+!     nchar_isis   - number of characters in isis
 !     obstype      - observation type
+!     nchar_obstype - number of characters in observation type
 !     crtm_coeffs_path - path to CRTM coeffs files
+!     nchar_path - number of characters in crtm_coeffs_path
 ! input variables.
   integer(c_int),intent(in) :: &
   init_pass,nchanl,mype_diaghdr,mype,nchar_isis,nchar_obstype,nchar_path
@@ -48,6 +51,7 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
   print *,trim(crtm_coeffs_path_f)
   print *,nchar_path,len(trim(crtm_coeffs_path_f))
 
+  ! these should be input args.
   Load_CloudCoeff=.true.
   Load_AerosolCoeff=.true.
 
