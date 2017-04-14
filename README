@@ -2,3 +2,12 @@ Experimental python interface to CRTM
 * build CRTM source in CRTM_REL-2.2.3 (compile with -fPIC!)
 * run 'python setup.py build_ext --inplace'
 * run test.py
+
+
+Fortran wrapper to CRTM that uses iso_c_binding is in src/pycrtm_interface.f90.
+Cython wrapper to pycrtm_interface.f90 in crtm_interface.pyx (uses src/pycrtm_interface.h).
+Python test program that imports crtm_interface c extension and calls init function in test.py.
+
+TODO:  
+* add rest of functionality in GSI's crtm_interface.f90 in pycrtm_interface.f90.
+* add high-level python interface to functions in crtm_interface.pyx.
