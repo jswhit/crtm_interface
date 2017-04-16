@@ -7,6 +7,7 @@ import os, sys, subprocess
 CRTM_incdir = os.environ.get('CRTM_INCDIR')
 if CRTM_incdir is None:
     CRTM_incdir='CRTM_REL-2.2.3/libsrc'
+    os.environ['CRTM_INCDIR']="../"+CRTM_incdir # needed by make.sh
 CRTM_libdir = os.environ.get('CRTM_LIBDIR')
 if CRTM_libdir is None:
     CRTM_libdir='CRTM_REL-2.2.3/libsrc'
@@ -16,7 +17,7 @@ strg = 'cd src; sh make.sh'
 sys.stdout.write('executing "%s"\n' % strg)
 subprocess.call(strg,env=os.environ,shell=True)
 
-os.remove('crtm_interface.c') # trigger a rebuild
+if os.path.exists('crtm_interface.c'): os.remove('crtm_interface.c') # trigger a rebuild
 
 # build c extension that calls fortran.
 libs = ['pycrtm_interface','imf','ifcore','crtm']

@@ -6,4 +6,6 @@ init_pass=1
 mype_diaghdr=2
 mype=3
 nchanl=7
-crtm_interface.crtm_initialize(init_pass,mype_diaghdr,mype,nchanl,isis,obstype,crtm_coeffs_path)
+iload_cloudcoeffs=1
+iload_aerosolcoeffs=1
+crtm_interface.crtm_initialize(init_pass,mype_diaghdr,mype,nchanl,isis,obstype,iload_cloudcoeffs,iload_aerosolcoeffs,crtm_coeffs_path)

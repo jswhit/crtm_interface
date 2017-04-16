@@ -7,21 +7,30 @@ implicit none
 
 contains
 
-subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,nchar_obstype,crtm_coeffs_path,nchar_path) bind(c)
+subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,nchar_obstype,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path) bind(c)
 !   input argument list:
-!     init_pass    - state of "setup" processing
-!     mype_diaghdr - processor to produce output from crtm
-!     mype         - current processor        
-!     nchanl       - number of channels    
-!     isis         - instrument/sensor character string 
-!     nchar_isis   - number of characters in isis
-!     obstype      - observation type
-!     nchar_obstype - number of characters in observation type
-!     crtm_coeffs_path - path to CRTM coeffs files
-!     nchar_path - number of characters in crtm_coeffs_path
+!     init_pass    - (int) state of "setup" processing
+!     mype_diaghdr - (int) processor to produce output from crtm
+!     mype         - (int) current processor        
+!     nchanl       - (int) number of channels    
+!     isis         - (char*10) instrument/sensor character string 
+!     obstype      - (char*20) observation type
+!     iload_cloudcoeff - (int) 1 to load cloud coeffs
+!     iload_aerosolcoeff - (int) 1 to load aerosol coeffs
+!     crtm_coeffs_path - (char*256) path to CRTM coeffs files
+!   output:
+!     n_channels - (int)
+!     sensor_id  - (char*)
+!     sensor_type  - (int)
+!     wmo_sat_id - (int)
+!     wmo_sensor_id - (int)
+!     process_channel - (int, dimension(n_channels))
+!     sensor_channel - (int, dimension(n_channels))
+!     channel_index - (int, dimension(n_channels)) 
 ! input variables.
   integer(c_int),intent(in) :: &
-  init_pass,nchanl,mype_diaghdr,mype,nchar_isis,nchar_obstype,nchar_path
+  init_pass,nchanl,mype_diaghdr,mype,nchar_isis,nchar_obstype,nchar_path,&
+  iload_cloudcoeff,iload_aerosolcoeff 
   character(c_char), intent(in) :: isis(10)
   character(c_char), intent(in) :: obstype(20)
   character(c_char), intent(in) :: crtm_coeffs_path(256)
@@ -32,15 +41,17 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
   integer(i_kind) :: error_status
   logical :: ice,Load_AerosolCoeff,Load_CloudCoeff
   character(len=20),dimension(1) :: sensorlist
-  type(crtm_channelinfo_type),save,dimension(1)  :: channelinfo
+  type(crtm_channelinfo_type),dimension(1) :: channelinfo
   character(len=256) :: crtm_coeffs_path_f
 ! local parameters
   character(len=*), parameter :: myname_='pycrtm_interface*init_crtm'
 
   print *,'in fortran'
   init = init_pass
-  print *,init
-  print *,init_pass,mype_diaghdr,mype,nchanl
+  Load_CloudCoeff=iload_cloudcoeff
+  Load_AerosolCoeff=iload_aerosolcoeff
+  print *,init,Load_CloudCoeff,Load_AerosolCoeff
+  print *,init_pass,mype_diaghdr,mype,nchanl,iload_cloudcoeff,iload_aerosolcoeff
   call copy_string(isis,nchar_isis,isis_f)
   call copy_string(obstype,nchar_obstype,obstype_f)
   call copy_string(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
@@ -51,9 +62,6 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
   print *,trim(crtm_coeffs_path_f)
   print *,nchar_path,len(trim(crtm_coeffs_path_f))
 
-  ! these should be input args.
-  Load_CloudCoeff=.true.
-  Load_AerosolCoeff=.true.
 
 ! Initialize radiative transfer
   sensorlist(1)=isis_f
@@ -74,6 +82,15 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
      stop
   endif
   print *,'done call crtm_init'
+  print *,'n_channels',channelinfo(1)%n_Channels
+  print *,'is_allocated',channelinfo(1)%is_Allocated
+  print *,'sensor_id ',trim(channelinfo(1)%Sensor_Id),len(channelinfo(1)%Sensor_Id)
+  print *,'sensor_type',channelinfo(1)%Sensor_Type
+  print *,'wmo_sat_id',channelinfo(1)%WMO_Satellite_Id
+  print *,'wmo_sensor_id',channelinfo(1)%WMO_Sensor_Id
+  print *,'process_channel',channelinfo(1)%Process_Channel,size(channelinfo(1)%Process_Channel)
+  print *,'sensor_channel',channelinfo(1)%Sensor_Channel
+  print *,'channel_index',channelinfo(1)%Channel_Index
 end subroutine init_crtm
 
 subroutine copy_string(stringc,nstringc,stringf)

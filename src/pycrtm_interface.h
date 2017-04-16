@@ -1,1 +1,1 @@
-void init_crtm(int *init_pass, int *mype_diaghdr, int *mype, int *nchanl, char *isis, int *nchar_isis, char *obstype, int *nchar_obstype, char *crtm_coeffs_path, int *nchar_path);
+void init_crtm(int *init_pass, int *mype_diaghdr, int *mype, int *nchanl, char *isis, int *nchar_isis, char *obstype, int *nchar_obstype, int *iload_cloudcoeff, int *iload_aerosolcoeff, char *crtm_coeffs_path, int *nchar_path);
