@@ -1,20 +1,24 @@
 module pycrtm_interface
 
-use iso_c_binding, only: c_double, c_int, c_char
+use iso_c_binding, only: c_double, c_int, c_char, c_ptr, c_loc
 use kinds, only: r_kind, i_kind
-use crtm_module, only: crtm_init, crtm_channelinfo_type, success
-implicit none
+use crtm_module, only: crtm_init, crtm_channelinfo_type, success, strlen
+implicit none 
 
 contains
 
-subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,nchar_obstype,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path) bind(c)
+subroutine get_strlen(lenstr) bind(c)
+  integer(c_int), intent(out) :: lenstr
+  lenstr = strlen
+end subroutine get_strlen
+
+subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path,n_channels,sensor_id,sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index) bind(c)
 !   input argument list:
 !     init_pass    - (int) state of "setup" processing
 !     mype_diaghdr - (int) processor to produce output from crtm
 !     mype         - (int) current processor        
 !     nchanl       - (int) number of channels    
-!     isis         - (char*10) instrument/sensor character string 
-!     obstype      - (char*20) observation type
+!     isis         - (char*strlen) instrument/sensor character string 
 !     iload_cloudcoeff - (int) 1 to load cloud coeffs
 !     iload_aerosolcoeff - (int) 1 to load aerosol coeffs
 !     crtm_coeffs_path - (char*256) path to CRTM coeffs files
@@ -29,18 +33,21 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
 !     channel_index - (int, dimension(n_channels)) 
 ! input variables.
   integer(c_int),intent(in) :: &
-  init_pass,nchanl,mype_diaghdr,mype,nchar_isis,nchar_obstype,nchar_path,&
+  init_pass,nchanl,mype_diaghdr,mype,nchar_isis,nchar_path,&
   iload_cloudcoeff,iload_aerosolcoeff 
-  character(c_char), intent(in) :: isis(10)
-  character(c_char), intent(in) :: obstype(20)
+  character(c_char), intent(in) :: isis(strlen)
   character(c_char), intent(in) :: crtm_coeffs_path(256)
+! output variables
+  integer(c_int),intent(out) :: &
+  n_channels,sensor_type,wmo_sat_id,wmo_sensor_id
+  character(c_char), intent(out) :: sensor_id(strlen)
+  type(c_ptr),intent(out) :: process_channel,sensor_channel,channel_index
 ! local variables.
-  character(len=20) :: isis_f
-  character(len=10) :: obstype_f
+  character(len=strlen) :: isis_f
   logical :: init
   integer(i_kind) :: error_status
   logical :: ice,Load_AerosolCoeff,Load_CloudCoeff
-  character(len=20),dimension(1) :: sensorlist
+  character(len=strlen),dimension(1) :: sensorlist
   type(crtm_channelinfo_type),dimension(1) :: channelinfo
   character(len=256) :: crtm_coeffs_path_f
 ! local parameters
@@ -52,13 +59,10 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
   Load_AerosolCoeff=iload_aerosolcoeff
   print *,init,Load_CloudCoeff,Load_AerosolCoeff
   print *,init_pass,mype_diaghdr,mype,nchanl,iload_cloudcoeff,iload_aerosolcoeff
-  call copy_string(isis,nchar_isis,isis_f)
-  call copy_string(obstype,nchar_obstype,obstype_f)
-  call copy_string(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
+  call copy_string_ctof(isis,nchar_isis,isis_f)
+  call copy_string_ctof(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
   print *,trim(isis_f)
   print *,nchar_isis,len(trim(isis_f))
-  print *,trim(obstype_f)
-  print *,nchar_obstype,len(trim(obstype_f))
   print *,trim(crtm_coeffs_path_f)
   print *,nchar_path,len(trim(crtm_coeffs_path_f))
 
@@ -83,28 +87,50 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,obstype,
   endif
   print *,'done call crtm_init'
   print *,'n_channels',channelinfo(1)%n_Channels
+  n_channels = channelinfo(1)%n_Channels
   print *,'is_allocated',channelinfo(1)%is_Allocated
   print *,'sensor_id ',trim(channelinfo(1)%Sensor_Id),len(channelinfo(1)%Sensor_Id)
+  call copy_string_ftoc(channelinfo(1)%Sensor_Id,strlen,sensor_id) 
   print *,'sensor_type',channelinfo(1)%Sensor_Type
+  sensor_type = channelinfo(1)%Sensor_Type
   print *,'wmo_sat_id',channelinfo(1)%WMO_Satellite_Id
+  wmo_sat_id = channelinfo(1)%WMO_Satellite_Id
   print *,'wmo_sensor_id',channelinfo(1)%WMO_Sensor_Id
+  wmo_sensor_id = channelinfo(1)%WMO_Sensor_Id
   print *,'process_channel',channelinfo(1)%Process_Channel,size(channelinfo(1)%Process_Channel)
+  !process_channel = c_loc(channelinfo(1)%Process_Channel)
   print *,'sensor_channel',channelinfo(1)%Sensor_Channel
+  !sensor_channel = c_loc(channelinfo(1)%Sensor_Channel)
   print *,'channel_index',channelinfo(1)%Channel_Index
+  !channel_index = c_loc(channelinfo(1)%Channel_Index)
 end subroutine init_crtm
 
-subroutine copy_string(stringc,nstringc,stringf)
+subroutine copy_string_ctof(stringc,nstringc,stringf)
   ! utility function to convert c string to fortran string
   character(len=*), intent(inout) :: stringf
   integer(c_int), intent(in) :: nstringc
   character(c_char), intent(in) :: stringc(nstringc)
   integer(i_kind) j
-  do j=1, nstringc
+  do j=1,nstringc
      stringf(j:j) = stringc(j)
   end do
   do j=nstringc+1,len(stringf)
      stringf(j:j) = ' '
   enddo
-end subroutine copy_string
+end subroutine copy_string_ctof
+
+subroutine copy_string_ftoc(stringf,nstringc,stringc)
+  ! utility function to convert c string to fortran string
+  character(len=*), intent(in) :: stringf
+  integer(c_int), intent(in) :: nstringc
+  character(c_char), intent(inout) :: stringc(nstringc)
+  integer(i_kind) j
+  do j=1,nstringc
+     stringc(j) = stringf(j:j)
+  end do
+  do j=nstringc+1,len(stringf)
+     stringc(j) = ' '
+  enddo
+end subroutine copy_string_ftoc
 
 end module pycrtm_interface
