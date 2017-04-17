@@ -1,6 +1,6 @@
 module pycrtm_interface
 
-use iso_c_binding, only: c_double, c_int, c_char, c_ptr, c_loc
+use iso_c_binding, only: c_double, c_int, c_char, c_bool
 use kinds, only: r_kind, i_kind
 use crtm_module, only: crtm_init, crtm_destroy, crtm_channelinfo_type, success, strlen
 implicit none 
@@ -35,10 +35,12 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
 ! output variables
   integer(c_int),intent(out) :: &
   sensor_type,wmo_sat_id,wmo_sensor_id
-  type(c_ptr),intent(out) :: process_channel,sensor_channel,channel_index
+  integer(c_int),intent(out),dimension(nchanl) :: &
+  sensor_channel,channel_index
+  integer(c_bool),intent(out),dimension(nchanl) :: process_channel
 ! local variables.
   character(len=strlen) :: isis_f
-  integer(i_kind) :: error_status, n_channels
+  integer(i_kind) :: error_status, n_channels, j
   logical :: ice,Load_AerosolCoeff,Load_CloudCoeff
   character(len=strlen),dimension(1) :: sensorlist
   type(crtm_channelinfo_type),dimension(1) :: channelinfo
@@ -93,11 +95,13 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
   print *,'wmo_sensor_id',channelinfo(1)%WMO_Sensor_Id
   wmo_sensor_id = channelinfo(1)%WMO_Sensor_Id
   print *,'process_channel',channelinfo(1)%Process_Channel,size(channelinfo(1)%Process_Channel)
-  !process_channel = c_loc(channelinfo(1)%Process_Channel)
+  do j=1,nchanl
+   process_channel(j) = channelinfo(1)%Process_Channel(j)
+  enddo
   print *,'sensor_channel',channelinfo(1)%Sensor_Channel
-  !sensor_channel = c_loc(channelinfo(1)%Sensor_Channel)
+  sensor_channel = channelinfo(1)%Sensor_Channel(:)
   print *,'channel_index',channelinfo(1)%Channel_Index
-  !channel_index = c_loc(channelinfo(1)%Channel_Index)
+  channel_index = channelinfo(1)%Channel_Index(:)
 end subroutine init_crtm
 
 subroutine copy_string_ctof(stringc,nstringc,stringf)
