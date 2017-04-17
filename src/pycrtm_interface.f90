@@ -12,68 +12,33 @@ subroutine get_strlen(lenstr) bind(c)
   lenstr = strlen
 end subroutine get_strlen
 
-subroutine get_nchannels(isis, nchar_isis, crtm_coeffs_path, nchar_path, n_channels) bind(c)
-! input variables.
-  character(c_char), intent(in) :: isis(strlen)
-  integer(c_int), intent(in) :: nchar_isis, nchar_path
-  character(c_char), intent(in) :: crtm_coeffs_path(256)
-! output variables
-  integer(c_int),intent(out) :: n_channels
-! local variables.
-  character(len=strlen),dimension(1) :: sensorlist
-  character(len=256) :: crtm_coeffs_path_f
-  character(len=strlen) :: isis_f
-  integer(i_kind) :: error_status
-  type(crtm_channelinfo_type),dimension(1) :: channelinfo
-! local parameters
-  character(len=*), parameter :: myname_='pycrtm_interface*crtm_get_nchannels'
-  print *,'in get_nchannels'
-  call copy_string_ctof(isis,nchar_isis,isis_f)
-  call copy_string_ctof(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
-  sensorlist(1)=isis_f
-  error_status = crtm_init(sensorlist,channelinfo, &
-        File_Path = crtm_coeffs_path_f)
-  n_channels = channelinfo(1)%n_Channels
-  if (error_status /= success) then
-     print *,myname_,':  ***ERROR*** crtm_init error_status=',error_status,&
-        '   TERMINATE PROGRAM EXECUTION'
-     stop
-  endif 
-  error_status = crtm_destroy(channelinfo)
-  if (error_status /= success) then
-     print *,myname_,':  ***ERROR*** crtm_destory error_status=',error_status
-  endif
-end subroutine get_nchannels
-
-subroutine init_crtm(isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path,n_channels,sensor_id,sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index) bind(c)
+subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path,sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index) bind(c)
 !   input argument list:
-!     isis         - (char*strlen) instrument/sensor character string 
+!     nchanl - (int) number of channels 
+!     isis   - (char*strlen) instrument/sensor character string 
 !     iload_cloudcoeff - (int) 1 to load cloud coeffs
 !     iload_aerosolcoeff - (int) 1 to load aerosol coeffs
 !     crtm_coeffs_path - (char*256) path to CRTM coeffs files
 !   output:
-!     n_channels - (int)
-!     sensor_id  - (char*)
 !     sensor_type  - (int)
 !     wmo_sat_id - (int)
 !     wmo_sensor_id - (int)
-!     process_channel - (int, dimension(n_channels))
-!     sensor_channel - (int, dimension(n_channels))
-!     channel_index - (int, dimension(n_channels)) 
+!     process_channel - (int, dimension(nchanl))
+!     sensor_channel - (int, dimension(nchanl))
+!     channel_index - (int, dimension(nchanl)) 
 ! input variables.
   integer(c_int),intent(in) :: &
-  nchar_isis,nchar_path,&
+  nchanl,nchar_isis,nchar_path,&
   iload_cloudcoeff,iload_aerosolcoeff 
   character(c_char), intent(in) :: isis(strlen)
   character(c_char), intent(in) :: crtm_coeffs_path(256)
 ! output variables
   integer(c_int),intent(out) :: &
-  n_channels,sensor_type,wmo_sat_id,wmo_sensor_id
-  character(c_char), intent(out) :: sensor_id(strlen)
+  sensor_type,wmo_sat_id,wmo_sensor_id
   type(c_ptr),intent(out) :: process_channel,sensor_channel,channel_index
 ! local variables.
   character(len=strlen) :: isis_f
-  integer(i_kind) :: error_status
+  integer(i_kind) :: error_status, n_channels
   logical :: ice,Load_AerosolCoeff,Load_CloudCoeff
   character(len=strlen),dimension(1) :: sensorlist
   type(crtm_channelinfo_type),dimension(1) :: channelinfo
@@ -108,9 +73,19 @@ subroutine init_crtm(isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_co
   print *,'done call crtm_init'
   print *,'n_channels',channelinfo(1)%n_Channels
   n_channels = channelinfo(1)%n_Channels
+  if (nchanl /= n_channels) then
+     write(6,*)myname_,':  ***WARNING*** mismatch between nchanl=',&
+        nchanl,' and n_channels=',n_channels,&
+        ' --> CAN NOT PROCESS isis=',isis_f,'   TERMINATE PROGRAM EXECUTION'
+     stop
+  endif
   print *,'is_allocated',channelinfo(1)%is_Allocated
-  print *,'sensor_id ',trim(channelinfo(1)%Sensor_Id),len(channelinfo(1)%Sensor_Id)
-  call copy_string_ftoc(channelinfo(1)%Sensor_Id,strlen,sensor_id) 
+  if (channelinfo(1)%Sensor_Id .ne. isis_f) then
+     write(6,*)myname_,':  ***WARNING*** mismatch between isis= ',&
+        ' and sensor_id= ',trim(channelinfo(1)%Sensor_Id),&
+        ' --> CAN NOT PROCESS isis=',isis_f,'   TERMINATE PROGRAM EXECUTION'
+     stop
+  endif
   print *,'sensor_type',channelinfo(1)%Sensor_Type
   sensor_type = channelinfo(1)%Sensor_Type
   print *,'wmo_sat_id',channelinfo(1)%WMO_Satellite_Id
