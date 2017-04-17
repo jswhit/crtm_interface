@@ -2,7 +2,7 @@ module pycrtm_interface
 
 use iso_c_binding, only: c_double, c_int, c_char, c_ptr, c_loc
 use kinds, only: r_kind, i_kind
-use crtm_module, only: crtm_init, crtm_channelinfo_type, success, strlen
+use crtm_module, only: crtm_init, crtm_destroy, crtm_channelinfo_type, success, strlen
 implicit none 
 
 contains
@@ -12,12 +12,41 @@ subroutine get_strlen(lenstr) bind(c)
   lenstr = strlen
 end subroutine get_strlen
 
-subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path,n_channels,sensor_id,sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index) bind(c)
+subroutine get_nchannels(isis, nchar_isis, crtm_coeffs_path, nchar_path, n_channels) bind(c)
+! input variables.
+  character(c_char), intent(in) :: isis(strlen)
+  integer(c_int), intent(in) :: nchar_isis, nchar_path
+  character(c_char), intent(in) :: crtm_coeffs_path(256)
+! output variables
+  integer(c_int),intent(out) :: n_channels
+! local variables.
+  character(len=strlen),dimension(1) :: sensorlist
+  character(len=256) :: crtm_coeffs_path_f
+  character(len=strlen) :: isis_f
+  integer(i_kind) :: error_status
+  type(crtm_channelinfo_type),dimension(1) :: channelinfo
+! local parameters
+  character(len=*), parameter :: myname_='pycrtm_interface*crtm_get_nchannels'
+  print *,'in get_nchannels'
+  call copy_string_ctof(isis,nchar_isis,isis_f)
+  call copy_string_ctof(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
+  sensorlist(1)=isis_f
+  error_status = crtm_init(sensorlist,channelinfo, &
+        File_Path = crtm_coeffs_path_f)
+  n_channels = channelinfo(1)%n_Channels
+  if (error_status /= success) then
+     print *,myname_,':  ***ERROR*** crtm_init error_status=',error_status,&
+        '   TERMINATE PROGRAM EXECUTION'
+     stop
+  endif 
+  error_status = crtm_destroy(channelinfo)
+  if (error_status /= success) then
+     print *,myname_,':  ***ERROR*** crtm_destory error_status=',error_status
+  endif
+end subroutine get_nchannels
+
+subroutine init_crtm(isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path,n_channels,sensor_id,sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index) bind(c)
 !   input argument list:
-!     init_pass    - (int) state of "setup" processing
-!     mype_diaghdr - (int) processor to produce output from crtm
-!     mype         - (int) current processor        
-!     nchanl       - (int) number of channels    
 !     isis         - (char*strlen) instrument/sensor character string 
 !     iload_cloudcoeff - (int) 1 to load cloud coeffs
 !     iload_aerosolcoeff - (int) 1 to load aerosol coeffs
@@ -33,7 +62,7 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,iload_cl
 !     channel_index - (int, dimension(n_channels)) 
 ! input variables.
   integer(c_int),intent(in) :: &
-  init_pass,nchanl,mype_diaghdr,mype,nchar_isis,nchar_path,&
+  nchar_isis,nchar_path,&
   iload_cloudcoeff,iload_aerosolcoeff 
   character(c_char), intent(in) :: isis(strlen)
   character(c_char), intent(in) :: crtm_coeffs_path(256)
@@ -44,7 +73,6 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,iload_cl
   type(c_ptr),intent(out) :: process_channel,sensor_channel,channel_index
 ! local variables.
   character(len=strlen) :: isis_f
-  logical :: init
   integer(i_kind) :: error_status
   logical :: ice,Load_AerosolCoeff,Load_CloudCoeff
   character(len=strlen),dimension(1) :: sensorlist
@@ -54,11 +82,10 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,iload_cl
   character(len=*), parameter :: myname_='pycrtm_interface*init_crtm'
 
   print *,'in fortran'
-  init = init_pass
   Load_CloudCoeff=iload_cloudcoeff
   Load_AerosolCoeff=iload_aerosolcoeff
-  print *,init,Load_CloudCoeff,Load_AerosolCoeff
-  print *,init_pass,mype_diaghdr,mype,nchanl,iload_cloudcoeff,iload_aerosolcoeff
+  print *,Load_CloudCoeff,Load_AerosolCoeff
+  print *,iload_cloudcoeff,iload_aerosolcoeff
   call copy_string_ctof(isis,nchar_isis,isis_f)
   call copy_string_ctof(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
   print *,trim(isis_f)
@@ -69,17 +96,10 @@ subroutine init_crtm(init_pass,mype_diaghdr,mype,nchanl,isis,nchar_isis,iload_cl
 
 ! Initialize radiative transfer
   sensorlist(1)=isis_f
-  if( crtm_coeffs_path_f /= "" ) then
-     if(init_pass .and. mype==mype_diaghdr) write(6,*)myname_,': crtm_init() on path "'//trim(crtm_coeffs_path_f)//'"'
-     error_status = crtm_init(sensorlist,channelinfo,&
-        Process_ID=mype,Output_Process_ID=mype_diaghdr, &
-        Load_CloudCoeff=Load_CloudCoeff,Load_AerosolCoeff=Load_AerosolCoeff, &
-        File_Path = crtm_coeffs_path_f )
-  else
-     error_status = crtm_init(sensorlist,channelinfo,&
-        Process_ID=mype,Output_Process_ID=mype_diaghdr, &
-        Load_CloudCoeff=Load_CloudCoeff,Load_AerosolCoeff=Load_AerosolCoeff)
-  endif
+  write(6,*)myname_,': crtm_init() on path "'//trim(crtm_coeffs_path_f)//'"'
+  error_status = crtm_init(sensorlist,channelinfo,&
+     Load_CloudCoeff=Load_CloudCoeff,Load_AerosolCoeff=Load_AerosolCoeff, &
+     File_Path = crtm_coeffs_path_f )
   if (error_status /= success) then
      print *,myname_,':  ***ERROR*** crtm_init error_status=',error_status,&
         '   TERMINATE PROGRAM EXECUTION'
