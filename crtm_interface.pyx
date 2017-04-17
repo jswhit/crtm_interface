@@ -23,14 +23,7 @@ def crtm_initialize(int nchanl, char *isis, int iload_cloudcoeff, int iload_aero
     cdef ndarr process_channel = np.empty(nchanl,np.bool_)
     cdef ndarr sensor_channel = np.empty(nchanl,np.intc)
     cdef ndarr channel_index = np.empty(nchanl,np.intc)
-    print 'in c'
-    print isis
-    print crtm_coeffs_path
     nchar_isis = len(isis)
     nchar_path = len(crtm_coeffs_path)
-    print nchar_isis, nchar_path
     init_crtm(&nchanl, isis, &nchar_isis, &iload_cloudcoeff, &iload_aerosolcoeff, crtm_coeffs_path, &nchar_path, &sensor_type, &wmo_sat_id, &wmo_sensor_id, <char *>process_channel.data, <int *>sensor_channel.data, <int *>channel_index.data)
-    print process_channel
-    print sensor_channel
-    print channel_index
-    return sensor_type,wmo_sat_id,wmo_sensor_id
+    return sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index

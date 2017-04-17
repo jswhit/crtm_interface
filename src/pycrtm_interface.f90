@@ -48,18 +48,10 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
 ! local parameters
   character(len=*), parameter :: myname_='pycrtm_interface*init_crtm'
 
-  print *,'in fortran'
   Load_CloudCoeff=iload_cloudcoeff
   Load_AerosolCoeff=iload_aerosolcoeff
-  print *,Load_CloudCoeff,Load_AerosolCoeff
-  print *,iload_cloudcoeff,iload_aerosolcoeff
   call copy_string_ctof(isis,nchar_isis,isis_f)
   call copy_string_ctof(crtm_coeffs_path,nchar_path,crtm_coeffs_path_f)
-  print *,trim(isis_f)
-  print *,nchar_isis,len(trim(isis_f))
-  print *,trim(crtm_coeffs_path_f)
-  print *,nchar_path,len(trim(crtm_coeffs_path_f))
-
 
 ! Initialize radiative transfer
   sensorlist(1)=isis_f
@@ -72,8 +64,6 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
         '   TERMINATE PROGRAM EXECUTION'
      stop
   endif
-  print *,'done call crtm_init'
-  print *,'n_channels',channelinfo(1)%n_Channels
   n_channels = channelinfo(1)%n_Channels
   if (nchanl /= n_channels) then
      write(6,*)myname_,':  ***WARNING*** mismatch between nchanl=',&
@@ -81,26 +71,17 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
         ' --> CAN NOT PROCESS isis=',isis_f,'   TERMINATE PROGRAM EXECUTION'
      stop
   endif
-  print *,'is_allocated',channelinfo(1)%is_Allocated
   if (channelinfo(1)%Sensor_Id .ne. isis_f) then
      write(6,*)myname_,':  ***WARNING*** mismatch between isis= ',&
         ' and sensor_id= ',trim(channelinfo(1)%Sensor_Id),&
         ' --> CAN NOT PROCESS isis=',isis_f,'   TERMINATE PROGRAM EXECUTION'
      stop
   endif
-  print *,'sensor_type',channelinfo(1)%Sensor_Type
   sensor_type = channelinfo(1)%Sensor_Type
-  print *,'wmo_sat_id',channelinfo(1)%WMO_Satellite_Id
   wmo_sat_id = channelinfo(1)%WMO_Satellite_Id
-  print *,'wmo_sensor_id',channelinfo(1)%WMO_Sensor_Id
   wmo_sensor_id = channelinfo(1)%WMO_Sensor_Id
-  print *,'process_channel',channelinfo(1)%Process_Channel,size(channelinfo(1)%Process_Channel)
-  do j=1,nchanl
-   process_channel(j) = channelinfo(1)%Process_Channel(j)
-  enddo
-  print *,'sensor_channel',channelinfo(1)%Sensor_Channel
+  process_channel = channelinfo(1)%Process_Channel(:)
   sensor_channel = channelinfo(1)%Sensor_Channel(:)
-  print *,'channel_index',channelinfo(1)%Channel_Index
   channel_index = channelinfo(1)%Channel_Index(:)
   error_status = crtm_destroy(channelinfo)
   if (error_status /= success) then
