@@ -102,6 +102,10 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
   sensor_channel = channelinfo(1)%Sensor_Channel(:)
   print *,'channel_index',channelinfo(1)%Channel_Index
   channel_index = channelinfo(1)%Channel_Index(:)
+  error_status = crtm_destroy(channelinfo)
+  if (error_status /= success) then
+     write(6,*)myname_,':  ***ERROR*** crtm_destroy,error_status=',error_status
+  endif
 end subroutine init_crtm
 
 subroutine copy_string_ctof(stringc,nstringc,stringf)
