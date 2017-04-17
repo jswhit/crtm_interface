@@ -16,9 +16,11 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
 !   input argument list:
 !     nchanl - (int) number of channels 
 !     isis   - (char*strlen) instrument/sensor character string 
+!     nchar_isis - (int) number of characters in isis
 !     iload_cloudcoeff - (int) 1 to load cloud coeffs
 !     iload_aerosolcoeff - (int) 1 to load aerosol coeffs
 !     crtm_coeffs_path - (char*256) path to CRTM coeffs files
+!     nchar_path - (int) number of characters in crtm_coeffs_path
 !   output:
 !     sensor_type  - (int)
 !     wmo_sat_id - (int)
@@ -83,6 +85,8 @@ subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,
   process_channel = channelinfo(1)%Process_Channel(:)
   sensor_channel = channelinfo(1)%Sensor_Channel(:)
   channel_index = channelinfo(1)%Channel_Index(:)
+
+! deallocate Channel_Info object
   error_status = crtm_destroy(channelinfo)
   if (error_status /= success) then
      write(6,*)myname_,':  ***ERROR*** crtm_destroy,error_status=',error_status
