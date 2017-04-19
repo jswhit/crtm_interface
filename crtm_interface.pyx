@@ -2,9 +2,8 @@ import numpy as np
 from numpy cimport ndarray as ndarr
 from libc.stdlib cimport malloc, free
 
-cdef extern from "src/pycrtm_interface.h":
-    int get_strlen(int *strlen);
-    int init_crtm(int *nchanl, char *isis, int *nchar_isis, int *iload_cloudcoeffs, int *iload_aerosolcoeffs, char *crtm_coeffs_path, int *nchar_path, int *sensor_type, int *wmo_sat_id, int *wmo_sensor_id, char *process_channel, int *sensor_channel, int *channel_index);
+cdef extern int get_strlen(int *strlen);
+cdef extern int init_crtm(int *nchanl, char *isis, int *nchar_isis, int *iload_cloudcoeffs, int *iload_aerosolcoeffs, char *crtm_coeffs_path, int *nchar_path, int *sensor_type, int *wmo_sat_id, int *wmo_sensor_id, char *process_channel, int *sensor_channel, int *channel_index);
 
 #  When interfacing between Fortran and C, you will have to pass pointers to all
 #  the variables you send to the Fortran function as arguments. Passing a variable
