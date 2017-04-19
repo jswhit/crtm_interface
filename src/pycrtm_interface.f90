@@ -12,7 +12,9 @@ subroutine get_strlen(lenstr) bind(c)
   lenstr = strlen
 end subroutine get_strlen
 
-subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,crtm_coeffs_path,nchar_path,sensor_type,wmo_sat_id,wmo_sensor_id,process_channel,sensor_channel,channel_index) bind(c)
+subroutine init_crtm(nchanl,isis,nchar_isis,iload_cloudcoeff,iload_aerosolcoeff,&
+                     crtm_coeffs_path,nchar_path,sensor_type,wmo_sat_id,wmo_sensor_id,&
+                     process_channel,sensor_channel,channel_index) bind(c)
 !   input argument list:
 !     nchanl - (int) number of channels 
 !     isis   - (char*strlen) instrument/sensor character string 

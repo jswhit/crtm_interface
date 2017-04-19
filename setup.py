@@ -1,7 +1,7 @@
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
-import os, sys, subprocess
+import os, sys, subprocess, numpy
 
 # get paths to CRTM stuff.
 CRTM_incdir = os.environ.get('CRTM_INCDIR')
@@ -20,13 +20,15 @@ subprocess.call(strg,env=os.environ,shell=True)
 if os.path.exists('crtm_interface.c'): os.remove('crtm_interface.c') # trigger a rebuild
 
 # build c extension that calls fortran.
-libs = ['pycrtm_interface','imf','ifcore','crtm']
-
+libs = ['pycrtm_interface','crtm','gfortran']
+inc_dirs = ['src',CRTM_incdir]
+inc_dirs.append(numpy.get_include())
+lib_dirs = ['src',CRTM_libdir,'/opt/local/lib/gcc6']
 ext_modules = [Extension('crtm_interface',                       # module name
                         ['crtm_interface.pyx'],                  # cython source file
                         libraries     = libs,
-                        include_dirs  = ['src',CRTM_incdir],
-                        library_dirs  = ['src',CRTM_libdir])]
+                        include_dirs  = inc_dirs,
+                        library_dirs  = lib_dirs)]
 
 setup(name = 'crtm_interface',
       cmdclass = {'build_ext': build_ext},
