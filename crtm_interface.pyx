@@ -9,6 +9,9 @@ cdef extern int get_n_channels(int *ichannel_info, int *n_Channels);
 cdef extern int get_sensor_id(int *ih, char *name);
 cdef extern int set_sensor_id(int *ih, char *name);
 
+cdef extern from 'crtm_interface.h':
+   enum: CRTM_STRLEN
+
 #  When interfacing between Fortran and C, you will have to pass pointers to all
 #  the variables you send to the Fortran function as arguments. Passing a variable
 #  directly will probably crash Python.
@@ -18,7 +21,9 @@ def crtm_strlen():
     get_strlen(&strlen)
     return strlen
 
-_strlen = crtm_strlen()
+_crtm_strlen = crtm_strlen()
+if _crtm_strlen != CRTM_STRLEN:
+    raise ValueError('inconsistent value of CRTM_STRLEN')
 
 cdef class Channel_Info:
     cdef ndarray ptr
@@ -41,7 +46,7 @@ cdef class Channel_Info:
     property Sensor_ID:
         """get and set Sensor_ID member of derived type"""
         def __get__(self):
-            cdef char name[20+1] # null char will be added
+            cdef char name[CRTM_STRLEN+1] # null char will be added
             get_sensor_id(<int *>self.ptr.data, name)
             return name
         def __set__(self,char *value):
