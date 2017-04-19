@@ -4,6 +4,8 @@ from numpy cimport ndarray
 cdef extern int get_strlen(int *strlen);
 cdef extern int init_crtm(int *nchanl, char *isis, int *iload_cloudcoeffs, int *iload_aerosolcoeffs, char *crtm_coeffs_path, int *ichannel_info);
 cdef extern int print_channelinfo(int *ichannel_info);
+cdef extern int set_nchannels(int *ichannel_info, int *n_Channels);
+cdef extern int get_nchannels(int *ichannel_info, int *n_Channels);
 
 #  When interfacing between Fortran and C, you will have to pass pointers to all
 #  the variables you send to the Fortran function as arguments. Passing a variable
@@ -16,10 +18,42 @@ def crtm_strlen():
 
 _strlen = crtm_strlen()
 
-def crtm_initialize(int nchanl, char *isis, int iload_cloudcoeff, int iload_aerosolcoeff, char *crtm_coeffs_path):
-    cdef ndarray ichannel_info = np.empty(12, np.intc)
-    init_crtm(&nchanl, isis, &iload_cloudcoeff, &iload_aerosolcoeff, crtm_coeffs_path, <int *>ichannel_info.data)
-    return ichannel_info
-
-def crtm_channelinfo_print(ndarray ichannel_info):
-    print_channelinfo(<int *>ichannel_info.data)
+cdef class Channel_Info:
+    cdef ndarray ptr
+    cdef int nchanl
+    def __init__(self, int nchanl, char *isis, int iload_cloudcoeff, int iload_aerosolcoeff, char *crtm_coeffs_path):
+        cdef ndarray ichannel_info = np.empty(12, np.intc)
+        self.nchanl = nchanl
+        init_crtm(&nchanl, isis, &iload_cloudcoeff, &iload_aerosolcoeff, crtm_coeffs_path, <int *>ichannel_info.data)
+        self.ptr = ichannel_info
+    def show(self):
+        print_channelinfo(<int *>self.ptr.data)
+    property n_Channels:
+        """get and set n_Channels member of derived type"""
+        def __get__(self):
+            cdef int i
+            get_nchannels(<int *>self.ptr.data, &i)
+            return i
+        def __set__(self,int value):
+            set_nchannels(<int *>self.ptr.data, &value)
+    #property name:
+    #    """get and set name member of derived type"""
+    #    def __get__(self):
+    #        cdef char name[20+1] # null char will be added
+    #        get_name(<int *>self.ptr.data, name)
+    #        return name
+    #    def __set__(self,char *value):
+    #        set_name(<int *>self.ptr.data, value)
+    #property iarr:
+    #    """get and set iarr member of derived type"""
+    #    def __get__(self):
+    #        cdef ndarray iarr = np.empty(5,np.intc)
+    #        get_iarr(<int *>self.ptr.data, <int *>iarr.data, &self.iarr_len)
+    #        return iarr
+    #    def __set__(self,ndarray value):
+    #        value = value.astype(np.intc)
+    #        if value.size != self.iarr_len:
+    #            raise ValueError('cannot change the size of iarr member')
+    #        set_iarr(<int *>self.ptr.data, <int *>value.data, &self.iarr_len)
+    #def __dealloc__(self):
+    #    destroy(<int *>self.ptr.data)

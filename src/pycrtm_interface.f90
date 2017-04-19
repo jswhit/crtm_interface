@@ -94,6 +94,25 @@ subroutine print_channelinfo(ichannel_info) bind(c)
   call crtm_channelinfo_inspect( channel_infop % ptr )
 end subroutine print_channelinfo
 
+! set crtm_channel_info derived type member n_Channels
+subroutine set_nchannels(ichannel_info, n_Channels) bind(c)
+   integer(c_int), intent(out), dimension(12) :: ichannel_info
+   integer(c_int), intent(in) :: n_Channels
+   type (crtm_channelinfo_type_pointer) :: channel_infop
+   channel_infop = transfer(ichannel_info, channel_infop)
+   channel_infop % ptr % n_Channels = n_Channels
+   ichannel_info = transfer(channel_infop, ichannel_info)
+end subroutine set_nchannels
+
+! get crtm_channel_info derived type member n_Channels
+subroutine get_nchannels(ichannel_info, n_Channels) bind(c)
+   integer(c_int), intent(in), dimension(12) :: ichannel_info
+   integer(c_int), intent(out) :: n_Channels
+   type (crtm_channelinfo_type_pointer) :: channel_infop
+   channel_infop = transfer(ichannel_info, channel_infop)
+   n_Channels = channel_infop % ptr % n_Channels 
+end subroutine get_nchannels
+
 subroutine copy_string_ctof(stringc,stringf)
   ! utility function to convert c string to fortran string
   character(len=*), intent(out) :: stringf
