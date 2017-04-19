@@ -95,23 +95,42 @@ subroutine print_channelinfo(ichannel_info) bind(c)
 end subroutine print_channelinfo
 
 ! set crtm_channel_info derived type member n_Channels
-subroutine set_nchannels(ichannel_info, n_Channels) bind(c)
+subroutine set_n_channels(ichannel_info, n_Channels) bind(c)
    integer(c_int), intent(out), dimension(12) :: ichannel_info
    integer(c_int), intent(in) :: n_Channels
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % n_Channels = n_Channels
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_nchannels
+end subroutine set_n_channels
 
 ! get crtm_channel_info derived type member n_Channels
-subroutine get_nchannels(ichannel_info, n_Channels) bind(c)
+subroutine get_n_channels(ichannel_info, n_Channels) bind(c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out) :: n_Channels
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    n_Channels = channel_infop % ptr % n_Channels 
-end subroutine get_nchannels
+end subroutine get_n_channels
+
+! get derived type member name
+subroutine get_sensor_id(ih,name) bind (c)
+   integer(c_int), intent(in), dimension(12) :: ih
+   character(c_char), intent(out) :: name(strlen+1)
+   type (crtm_channelinfo_type_pointer) :: fdtp
+   fdtp = transfer(ih, fdtp)
+   call copy_string_ftoc(fdtp%ptr%Sensor_ID,name)
+end subroutine get_sensor_id
+
+! set derived type member name
+subroutine set_sensor_id(ih, name) bind(c)
+   integer(c_int), intent(inout), dimension(12) :: ih
+   character(c_char), intent(in) :: name(strlen+1)
+   type (crtm_channelinfo_type_pointer) :: fdtp
+   fdtp = transfer(ih, fdtp)
+   call copy_string_ctof(name,fdtp%ptr%Sensor_ID)
+   ih = transfer(fdtp, ih)
+end subroutine set_sensor_id
 
 subroutine copy_string_ctof(stringc,stringf)
   ! utility function to convert c string to fortran string

@@ -4,8 +4,10 @@ from numpy cimport ndarray
 cdef extern int get_strlen(int *strlen);
 cdef extern int init_crtm(int *nchanl, char *isis, int *iload_cloudcoeffs, int *iload_aerosolcoeffs, char *crtm_coeffs_path, int *ichannel_info);
 cdef extern int print_channelinfo(int *ichannel_info);
-cdef extern int set_nchannels(int *ichannel_info, int *n_Channels);
-cdef extern int get_nchannels(int *ichannel_info, int *n_Channels);
+cdef extern int set_n_channels(int *ichannel_info, int *n_Channels);
+cdef extern int get_n_channels(int *ichannel_info, int *n_Channels);
+cdef extern int get_sensor_id(int *ih, char *name);
+cdef extern int set_sensor_id(int *ih, char *name);
 
 #  When interfacing between Fortran and C, you will have to pass pointers to all
 #  the variables you send to the Fortran function as arguments. Passing a variable
@@ -32,18 +34,18 @@ cdef class Channel_Info:
         """get and set n_Channels member of derived type"""
         def __get__(self):
             cdef int i
-            get_nchannels(<int *>self.ptr.data, &i)
+            get_n_channels(<int *>self.ptr.data, &i)
             return i
         def __set__(self,int value):
-            set_nchannels(<int *>self.ptr.data, &value)
-    #property name:
-    #    """get and set name member of derived type"""
-    #    def __get__(self):
-    #        cdef char name[20+1] # null char will be added
-    #        get_name(<int *>self.ptr.data, name)
-    #        return name
-    #    def __set__(self,char *value):
-    #        set_name(<int *>self.ptr.data, value)
+            set_n_channels(<int *>self.ptr.data, &value)
+    property Sensor_ID:
+        """get and set Sensor_ID member of derived type"""
+        def __get__(self):
+            cdef char name[20+1] # null char will be added
+            get_sensor_id(<int *>self.ptr.data, name)
+            return name
+        def __set__(self,char *value):
+            set_sensor_id(<int *>self.ptr.data, value)
     #property iarr:
     #    """get and set iarr member of derived type"""
     #    def __get__(self):

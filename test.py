@@ -8,5 +8,6 @@ iload_aerosolcoeffs=1
 channel_info = crtm_interface.Channel_Info(nchanl,isis,iload_cloudcoeffs,iload_aerosolcoeffs,crtm_coeffs_path)
 channel_info.show()
 print channel_info.n_Channels
+print channel_info.Sensor_ID
 channel_info.n_Channels = 14
 channel_info.show()
