@@ -7,6 +7,7 @@ import os, sys, subprocess, numpy
 CRTM_incdir = os.environ.get('CRTM_INCDIR')
 if CRTM_incdir is None:
     CRTM_incdir='CRTM_REL-2.2.3/libsrc'
+CRTM_libdir = os.environ.get('CRTM_LIBDIR')
 if CRTM_libdir is None:
     CRTM_libdir='CRTM_REL-2.2.3/libsrc'
 
