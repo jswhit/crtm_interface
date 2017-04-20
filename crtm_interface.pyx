@@ -133,3 +133,16 @@ cdef class Channel_Info:
             set_channel_index(<int *>self.ptr.data, <int *>value.data, &self.nchanl)
     def __dealloc__(self):
         destroy_channelinfo(<int *>self.ptr.data)
+    def __repr__(self):
+        printlist = [' ChannelInfo OBJECT:\n']
+        printlist.append('   n_Channels       : %s\n' % self.n_Channels)
+        printlist.append('   Senssor_Type     : %s\n' % self.Sensor_Type)
+        printlist.append('   WMO_Satellite_ID : %s\n' % self.WMO_Satellite_ID)
+        printlist.append('   WMO_Sensor_ID    : %s\n' % self.WMO_Sensor_ID)
+        printlist.append('   Sensor_Index     : %s\n' % self.Sensor_Index)
+        printlist.append('   Channel#     Index     Process?\n')
+        for n in range(self.n_Channels):
+            printlist.append('        %s           %s        %s\n' % (self.Sensor_Channel[n],\
+            self.Channel_Index[n],self.Process_Channel[n]))
+        return ''.join(printlist)
+        
