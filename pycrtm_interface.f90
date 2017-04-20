@@ -11,11 +11,13 @@ end type crtm_channelinfo_type_pointer
 
 contains
 
+! get CRTM string length
 subroutine get_strlen(lenstr) bind(c)
   integer(c_int), intent(out) :: lenstr
   lenstr = strlen
 end subroutine get_strlen
 
+! initialize Channel_Info type, read in coefficient files for a given instrument/sensor
 subroutine init_crtm(nchanl,isis,iload_cloudcoeff,iload_aerosolcoeff,&
                      crtm_coeffs_path,ichannel_info) bind(c)
 !   input argument list:
@@ -99,6 +101,7 @@ RESULT( error_status )
   error_status = crtm_destroy(channelinfo_array)
 END FUNCTION crtm_destroy_wrap
 
+! print info in Channel_Info type
 subroutine print_channelinfo(ichannel_info) bind(c)
   integer(c_int), intent(in), dimension(12) :: ichannel_info
   type (crtm_channelinfo_type_pointer) :: channel_infop
