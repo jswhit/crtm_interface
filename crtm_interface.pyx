@@ -1,6 +1,7 @@
 import numpy as np
 from numpy cimport ndarray 
 
+# fortran functions with iso_c_binding interfaces.
 cdef extern int get_strlen(int *strlen);
 cdef extern int init_crtm(int *nchanl, char *isis, int *iload_cloudcoeffs, int *iload_aerosolcoeffs, char *crtm_coeffs_path, int *ichannel_info);
 cdef extern int destroy_channelinfo(int *ichannel_info);
@@ -24,6 +25,7 @@ cdef extern int channelinfo_set_channel_index(int *icahnnel_info, int *value, in
 cdef extern int channelinfo_get_process_channel(int *ichannel_info, int *value, int *nchanl);
 cdef extern int channelinfo_set_process_channel(int *icahnnel_info, int *value, int *nchanl);
 
+# header file with constants
 cdef extern from 'crtm_interface.h':
    enum: CRTM_STRLEN
 
@@ -36,10 +38,12 @@ def crtm_strlen():
     get_strlen(&strlen)
     return strlen
 
+# make sure constant in header file consistent with constant in library.
 _crtm_strlen = crtm_strlen()
 if _crtm_strlen != CRTM_STRLEN:
     raise ValueError('inconsistent value of CRTM_STRLEN')
 
+# python version of Channel_Info fortran derived type
 cdef class Channel_Info:
     cdef ndarray ptr
     cdef int nchanl
