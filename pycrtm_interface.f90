@@ -11,10 +11,10 @@ end type crtm_channelinfo_type_pointer
 
 contains
 
-subroutine channelinfo_get_strlen(lenstr) bind(c)
+subroutine get_strlen(lenstr) bind(c)
   integer(c_int), intent(out) :: lenstr
   lenstr = strlen
-end subroutine channelinfo_get_strlen
+end subroutine get_strlen
 
 subroutine init_crtm(nchanl,isis,iload_cloudcoeff,iload_aerosolcoeff,&
                      crtm_coeffs_path,ichannel_info) bind(c)

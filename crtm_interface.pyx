@@ -1,7 +1,7 @@
 import numpy as np
 from numpy cimport ndarray 
 
-cdef extern int channelinfo_get_strlen(int *strlen);
+cdef extern int get_strlen(int *strlen);
 cdef extern int init_crtm(int *nchanl, char *isis, int *iload_cloudcoeffs, int *iload_aerosolcoeffs, char *crtm_coeffs_path, int *ichannel_info);
 cdef extern int destroy_channelinfo(int *ichannel_info);
 cdef extern int print_channelinfo(int *ichannel_info);
@@ -33,7 +33,7 @@ cdef extern from 'crtm_interface.h':
 
 def crtm_strlen():
     cdef int strlen
-    channelinfo_get_strlen(&strlen)
+    get_strlen(&strlen)
     return strlen
 
 _crtm_strlen = crtm_strlen()
