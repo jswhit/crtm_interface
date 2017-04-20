@@ -11,10 +11,10 @@ end type crtm_channelinfo_type_pointer
 
 contains
 
-subroutine get_strlen(lenstr) bind(c)
+subroutine channelinfo_get_strlen(lenstr) bind(c)
   integer(c_int), intent(out) :: lenstr
   lenstr = strlen
-end subroutine get_strlen
+end subroutine channelinfo_get_strlen
 
 subroutine init_crtm(nchanl,isis,iload_cloudcoeff,iload_aerosolcoeff,&
                      crtm_coeffs_path,ichannel_info) bind(c)
@@ -107,121 +107,121 @@ subroutine print_channelinfo(ichannel_info) bind(c)
 end subroutine print_channelinfo
 
 ! set crtm_channel_info derived type member n_Channels
-subroutine set_n_channels(ichannel_info, n_Channels) bind(c)
+subroutine channelinfo_set_n_channels(ichannel_info, n_Channels) bind(c)
    integer(c_int), intent(out), dimension(12) :: ichannel_info
    integer(c_int), intent(in) :: n_Channels
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % n_Channels = n_Channels
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_n_channels
+end subroutine channelinfo_set_n_channels
 
 ! get crtm_channel_info derived type member n_Channels
-subroutine get_n_channels(ichannel_info, n_Channels) bind(c)
+subroutine channelinfo_get_n_channels(ichannel_info, n_Channels) bind(c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out) :: n_Channels
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    n_Channels = channel_infop % ptr % n_Channels 
-end subroutine get_n_channels
+end subroutine channelinfo_get_n_channels
 
 ! set crtm_channel_info derived type member Sensor_Type
-subroutine set_sensor_type(ichannel_info, Sensor_Type) bind(c)
+subroutine channelinfo_set_sensor_type(ichannel_info, Sensor_Type) bind(c)
    integer(c_int), intent(out), dimension(12) :: ichannel_info
    integer(c_int), intent(in) :: Sensor_Type
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % Sensor_Type = Sensor_Type
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_sensor_type
+end subroutine channelinfo_set_sensor_type
 
 ! get crtm_channel_info derived type member Sensor_Type
-subroutine get_sensor_type(ichannel_info, Sensor_Type) bind(c)
+subroutine channelinfo_get_sensor_type(ichannel_info, Sensor_Type) bind(c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out) :: Sensor_Type
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    Sensor_Type = channel_infop % ptr % Sensor_Type 
-end subroutine get_sensor_type
+end subroutine channelinfo_get_sensor_type
 
 ! set crtm_channel_info derived type member Sensor_Index
-subroutine set_sensor_index(ichannel_info, Sensor_Index) bind(c)
+subroutine channelinfo_set_sensor_index(ichannel_info, Sensor_Index) bind(c)
    integer(c_int), intent(out), dimension(12) :: ichannel_info
    integer(c_int), intent(in) :: Sensor_Index
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % Sensor_Index = Sensor_Index
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_sensor_index
+end subroutine channelinfo_set_sensor_index
 
 ! get crtm_channel_info derived type member Sensor_Index
-subroutine get_sensor_index(ichannel_info, Sensor_Index) bind(c)
+subroutine channelinfo_get_sensor_index(ichannel_info, Sensor_Index) bind(c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out) :: Sensor_Index
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    Sensor_Index = channel_infop % ptr % Sensor_Index 
-end subroutine get_sensor_index
+end subroutine channelinfo_get_sensor_index
 
 ! set crtm_channel_info derived type member WMO_Satellite_ID
-subroutine set_wmo_satellite_id(ichannel_info, WMO_Satellite_ID) bind(c)
+subroutine channelinfo_set_wmo_satellite_id(ichannel_info, WMO_Satellite_ID) bind(c)
    integer(c_int), intent(out), dimension(12) :: ichannel_info
    integer(c_int), intent(in) :: WMO_Satellite_ID
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % WMO_Satellite_ID = WMO_Satellite_ID
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_wmo_satellite_id
+end subroutine channelinfo_set_wmo_satellite_id
 
 ! get crtm_channel_info derived type member WMO_Satellite_ID
-subroutine get_wmo_satellite_id(ichannel_info, WMO_Satellite_ID) bind(c)
+subroutine channelinfo_get_wmo_satellite_id(ichannel_info, WMO_Satellite_ID) bind(c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out) :: WMO_Satellite_ID
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    WMO_Satellite_ID = channel_infop % ptr % WMO_Satellite_ID 
-end subroutine get_wmo_satellite_id
+end subroutine channelinfo_get_wmo_satellite_id
 
 ! get derived type member name
-subroutine get_sensor_id(ichannel_info,name) bind (c)
+subroutine channelinfo_get_sensor_id(ichannel_info,name) bind (c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    character(c_char), intent(out) :: name(strlen+1)
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    call copy_string_ftoc(channel_infop%ptr%Sensor_ID,name)
-end subroutine get_sensor_id
+end subroutine channelinfo_get_sensor_id
 
 ! set crtm_channel_info derived type member WMO_Sensor_ID
-subroutine set_wmo_sensor_id(ichannel_info, WMO_Sensor_ID) bind(c)
+subroutine channelinfo_set_wmo_sensor_id(ichannel_info, WMO_Sensor_ID) bind(c)
    integer(c_int), intent(out), dimension(12) :: ichannel_info
    integer(c_int), intent(in) :: WMO_Sensor_ID
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % WMO_Sensor_ID = WMO_Sensor_ID
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_wmo_sensor_id
+end subroutine channelinfo_set_wmo_sensor_id
 
 ! get crtm_channel_info derived type member WMO_Sensor_ID
-subroutine get_wmo_sensor_id(ichannel_info, WMO_Sensor_ID) bind(c)
+subroutine channelinfo_get_wmo_sensor_id(ichannel_info, WMO_Sensor_ID) bind(c)
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out) :: WMO_Sensor_ID
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    WMO_Sensor_ID = channel_infop % ptr % WMO_Sensor_ID 
-end subroutine get_wmo_sensor_id
+end subroutine channelinfo_get_wmo_sensor_id
 
 ! set derived type member name
-subroutine set_sensor_id(ichannel_info, name) bind(c)
+subroutine channelinfo_set_sensor_id(ichannel_info, name) bind(c)
    integer(c_int), intent(inout), dimension(12) :: ichannel_info
    character(c_char), intent(in) :: name(strlen+1)
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    call copy_string_ctof(name,channel_infop%ptr%Sensor_ID)
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_sensor_id
+end subroutine channelinfo_set_sensor_id
 
 ! set derived type member Sensor_Channel
-subroutine set_sensor_channel(ichannel_info, sensor_channel, n) bind(c)
+subroutine channelinfo_set_sensor_channel(ichannel_info, sensor_channel, n) bind(c)
    integer(c_int), intent(in) :: n
    integer(c_int), intent(inout), dimension(12) :: ichannel_info
    integer(c_int), intent(in), dimension(n) :: sensor_channel
@@ -229,20 +229,20 @@ subroutine set_sensor_channel(ichannel_info, sensor_channel, n) bind(c)
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % Sensor_Channel = sensor_channel
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_sensor_channel
+end subroutine channelinfo_set_sensor_channel
 
 ! get derived type member Sensor_Channel
-subroutine get_sensor_channel(ichannel_info,sensor_channel, n) bind (c)
+subroutine channelinfo_get_sensor_channel(ichannel_info,sensor_channel, n) bind (c)
    integer(c_int), intent(in) :: n
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out), dimension(n) :: sensor_channel
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    sensor_channel = channel_infop % ptr % Sensor_Channel
-end subroutine get_sensor_channel
+end subroutine channelinfo_get_sensor_channel
 
 ! set derived type member Channel_Index
-subroutine set_channel_index(ichannel_info, channel_index, n) bind(c)
+subroutine channelinfo_set_channel_index(ichannel_info, channel_index, n) bind(c)
    integer(c_int), intent(in) :: n
    integer(c_int), intent(inout), dimension(12) :: ichannel_info
    integer(c_int), intent(in), dimension(n) :: channel_index
@@ -250,20 +250,20 @@ subroutine set_channel_index(ichannel_info, channel_index, n) bind(c)
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % Channel_Index = channel_index
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_channel_index
+end subroutine channelinfo_set_channel_index
 
 ! get derived type member Channel_Index
-subroutine get_channel_index(ichannel_info,channel_index, n) bind (c)
+subroutine channelinfo_get_channel_index(ichannel_info,channel_index, n) bind (c)
    integer(c_int), intent(in) :: n
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out), dimension(n) :: channel_index
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_index = channel_infop % ptr % Channel_Index
-end subroutine get_channel_index
+end subroutine channelinfo_get_channel_index
 
 ! set derived type member Process_Channel
-subroutine set_process_channel(ichannel_info, process_channel, n) bind(c)
+subroutine channelinfo_set_process_channel(ichannel_info, process_channel, n) bind(c)
    integer(c_int), intent(in) :: n
    integer(c_int), intent(inout), dimension(12) :: ichannel_info
    integer(c_int), intent(in), dimension(n) :: process_channel
@@ -271,17 +271,17 @@ subroutine set_process_channel(ichannel_info, process_channel, n) bind(c)
    channel_infop = transfer(ichannel_info, channel_infop)
    channel_infop % ptr % Process_Channel = process_channel
    ichannel_info = transfer(channel_infop, ichannel_info)
-end subroutine set_process_channel
+end subroutine channelinfo_set_process_channel
 
 ! get derived type member Process_Channel
-subroutine get_process_channel(ichannel_info,process_channel, n) bind (c)
+subroutine channelinfo_get_process_channel(ichannel_info,process_channel, n) bind (c)
    integer(c_int), intent(in) :: n
    integer(c_int), intent(in), dimension(12) :: ichannel_info
    integer(c_int), intent(out), dimension(n) :: process_channel
    type (crtm_channelinfo_type_pointer) :: channel_infop
    channel_infop = transfer(ichannel_info, channel_infop)
    process_channel = channel_infop % ptr % Process_Channel
-end subroutine get_process_channel
+end subroutine channelinfo_get_process_channel
 
 ! deallocate crtm_channelinfo_type
 subroutine destroy_channelinfo(ichannel_info) bind(c)
