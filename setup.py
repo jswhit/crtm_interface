@@ -12,21 +12,28 @@ CRTM_libdir = os.environ.get('CRTM_LIBDIR')
 if CRTM_libdir is None:
     CRTM_libdir='CRTM_REL-2.2.3/libsrc'
 
-# build iso_c_binding fortran wrapper using shell script.
-strg = 'cd src; sh make.sh'
+# build iso_c_binding fortran wrapper.
+compiler = 'gfortran'
+fname = 'pycrtm_interface'
+fopts = '-c -O2 -fPIC -I %s' % CRTM_incdir
+
+fsource = '%s.f90' % fname
+strg = '%s %s %s' % (compiler, fopts, fsource)
 sys.stdout.write('executing "%s"\n' % strg)
-subprocess.call(strg,env=os.environ,shell=True)
+subprocess.call(strg,shell=True)
 
 if os.path.exists('crtm_interface.c'): os.remove('crtm_interface.c') # trigger a rebuild
 
 # build c extension that calls fortran.
-libs = ['pycrtm_interface','crtm','gfortran']
-inc_dirs = ['src',CRTM_incdir]
+libs = ['crtm','gfortran']
+inc_dirs = [CRTM_incdir]
 inc_dirs.append(numpy.get_include())
-lib_dirs = ['src',CRTM_libdir,'/opt/local/lib/gcc6']
+lib_dirs = [CRTM_libdir,'/opt/local/lib/gcc6']
+objs = ['%s.o' % fname] # fortran object to link
 ext_modules = [Extension('crtm_interface',                       # module name
                         ['crtm_interface.pyx'],                  # cython source file
                         libraries     = libs,
+                        extra_objects = objs,
                         include_dirs  = inc_dirs,
                         library_dirs  = lib_dirs)]
 
