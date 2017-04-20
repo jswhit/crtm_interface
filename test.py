@@ -7,6 +7,7 @@ nchanl = 15
 iload_cloudcoeffs=1
 iload_aerosolcoeffs=1
 channel_info = crtm_interface.Channel_Info(nchanl,isis,iload_cloudcoeffs,iload_aerosolcoeffs,crtm_coeffs_path)
+print 
 channel_info.show() # fortran side
 print
 print channel_info # python side
